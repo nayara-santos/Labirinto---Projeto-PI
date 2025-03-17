@@ -21,7 +21,7 @@ typedef struct{
 
 //Funcao Main
 int main(){
-    int resp,m,n,i,j,a=0;
+    int resp,m,n,i,j,a=0,a_anterior;
     char nome_arquivo[64],aux[64],ordem[6];
 
     //Seta a funcao rand conforme o tempo
@@ -44,10 +44,19 @@ int main(){
         //Pedindo para o usuario selecionar o arquivo de labirinto a ser carregado
         printf("%s%s%s",Azul,"Digite o nome do arquivo do labirinto(sem o .txt):\n",NONE);
         scanf("%s",nome_arquivo);
+        
+        // VS CODE
         strcpy(aux,"../labirintos/");
         strcat(aux,nome_arquivo);
         FILE* teste = fopen(strcat(aux,".txt"),"r");
-        //FILE* teste = fopen(strcat(nome_arquivo,".txt"),"r"); // para ler no geany
+        
+        // GEANY
+        // strcpy(aux,"labirintos/");
+        // strcat(aux,nome_arquivo);
+        // FILE* teste = fopen(strcat(aux,".txt"),"r"); // para ler no geany
+        
+        
+        
         if(teste==NULL) printf("Nao foi possivel abrir o arquivo\n");
 
         //Lendo a primeira linha do arquivo, para criar a matriz com a ordem informada
@@ -93,29 +102,39 @@ int main(){
         //Função que faz o boneco andar
         while(final.i != jogador.i && final.j != jogador.j){
                 a = 0 + rand()%4;
+                if(a==a_anterior) {
+					do{
+						a = 0 + rand()%4;
+					}while(a==a_anterior);
+				}
                 printf("a: %d\n",a);
                 switch(a){
                     case 1: {
                         //Para cima
                         jogador.i--;
+                        a_anterior = 2;
                         break;
                     }
                     case 2: {
                         //Para baixo
                         jogador.i++;
+                        a_anterior = 1;
                         break;
                     }
                     case 3: {
                         //Para esquerda
                         jogador.j-=2;
+                        a_anterior = 0;
                         break;
                     }
                     case 0: {
                         //Para direita
                         jogador.j+=2;
+                        a_anterior = 3;
                         break;
                     }
                 }
+                
                 //Troca a posicao que o jogador passa por *
                 labirinto[jogador.i][jogador.j] = '*';
 
@@ -130,6 +149,7 @@ int main(){
                         else printf ("%c", labirinto[i][j]);
                     }
                 }
+                if(jogador.i == final.i && jogador.j == final.j) break;
         }
 
         //Salva o caminho do grande heroi no labirinto final
