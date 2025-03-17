@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-//Cores, definidas previamente como código ANSI para facilitar a estilização
+//Cores, definidas previamente como cï¿½digo ANSI para facilitar a estilizaï¿½ï¿½o
 
 #define NONE        "\033[0m"
 #define Vermelho    "\033[31m"
@@ -25,9 +25,9 @@ int main(){
         scanf("%d",&resp);
     }while(resp!=1 && resp!=2 && resp!=3 && resp!=4);
 
-    if(resp==1){
+    if(resp==1 || resp==2 || resp==3){
 
-        //Pedindo para o usuário selecionar o arquivo de labirinto a ser carregado
+        //Pedindo para o usuï¿½rio selecionar o arquivo de labirinto a ser carregado
 
         printf("%s%s%s",Azul,"Digite o nome do arquivo do labirinto(sem o .txt):\n",NONE);
         scanf("%s",nome_arquivo);
@@ -48,7 +48,7 @@ int main(){
                 labirinto[i][j] = fgetc(teste);
             }
         }
-        //Printando o labirinto, utilizando os códigos ANSI para deixar bonitinho
+        //Printando o labirinto, utilizando os cï¿½digos ANSI para deixar bonitinho
         for(i=0;i<m;i++){
             for(j=0;j<n;j++){
                 if(labirinto[i][j] =='#') printf("%s%c%s",Laranja,' ',NONE);
@@ -61,6 +61,16 @@ int main(){
         }
 
         fclose(teste);
+        if (resp==3){
+            FILE* lab_final = fopen("lab_final.txt", "w");
+            fputs(ordem, lab_final);
+            for (i=0; i<m; i++){
+                for (j=0; j<n; j++){
+                    fputc(labirinto[i][j], lab_final);
+                }
+            }
+            fclose(lab_final);
+        }
     }
     return 0;
 }
