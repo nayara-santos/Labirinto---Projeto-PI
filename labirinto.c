@@ -23,84 +23,57 @@ typedef struct{
     int j;
 }posicao;
 
-void armazenar_labirinto(FILE *teste, int m, int n);
+void armazenar_labirinto(FILE *lab, int m, int n);
 FILE* nome_labirinto(char* nome_arquivo);
-int menu();
+int menu(int acc_menu);
 void printar_labirinto(int m, int n);
 void salvar_labirinto(int m, int n, char* ordem);
 
 //Funcao Main
-int main(){
+int main(int argc, char** argv){
     int resp,m,n,i,j,a=0,a_anterior;
     char nome_arquivo[64],aux[64],ordem[6];
 
     //Seta a funcao rand conforme o tempo
     srand(time(0));
 
+    FILE* lab = fopen(argv[1],"r");
+    if(lab == NULL) {
+        printf("Nao foi possivel abrir o arquivo\n");
+    }
+    else{
+        fgets(ordem,sizeof(ordem),lab);
+        sscanf(ordem, "%d %d", &m, &n);
+        n = n*2;
+        armazenar_labirinto(lab, m, n);
+        if(acc_menu==0){
+            printar_labirinto(m,n);
+        }
+        resp = menu(acc_menu);
+        switch (resp) {
+            case 1: {
+                printar_labirinto(m, n);
+                acc_menu++;
+                main(argc,argv);
+                //break;
+            }
+            case 2: {
+                printf("Em breve"); 
+                acc_menu++;
+                main(argc,argv);
+                //break;
+            }
+            case 3: {
+                salvar_labirinto(m, n, ordem);
+                acc_menu++;
+                main(argc,argv);
+                //break;
+            }
+            case 4: exit(0); break;
+        }
+    }
     //Cria dois elementos de posicao
     posicao jogador, final;
-    resp = menu(acc_menu);
-
-    switch (resp) {
-        case 1: {
-            //Pedindo para o usuario selecionar o arquivo de labirinto a ser carregado
-            printf("%s%s%s",Azul,"Digite o nome do arquivo do labirinto(sem o .txt):\n",NONE);
-            scanf("%s",nome_arquivo);
-            
-            // VS CODE
-            strcpy(aux,"../labirintos/");
-            strcat(aux,nome_arquivo);
-            FILE* teste = fopen(strcat(aux,".txt"),"r");
-            // GEANY
-            // strcpy(aux,"labirintos/");
-            // strcat(aux,nome_arquivo);
-            // FILE* teste = fopen(strcat(aux,".txt"),"r"); // para ler no geany
-
-            if(teste==NULL) printf("Nao foi possivel abrir o arquivo\n");
-
-            //Lendo a primeira linha do arquivo, para criar a matriz com a ordem informada
-            fgets(ordem,sizeof(ordem),teste);
-            sscanf(ordem, "%d %d", &m, &n);
-            n = n*2;
-            armazenar_labirinto(teste, m, n);
-            printar_labirinto(m, n);
-            fclose(teste);
-            acc_menu++;
-            main();
-            //break;
-        }
-        case 2: {
-            printf("Em breve"); 
-            acc_menu++;
-            main();
-            //break;
-        }
-        case 3: {
-            
-            //printf("Em breve"); break;
-            //Pedindo para o usuario selecionar o arquivo de labirinto a ser carregado
-            printf("%s%s%s",Azul,"Digite o nome do arquivo do labirinto(sem o .txt):\n",NONE);
-            scanf("%s",nome_arquivo);
-            
-            // VS CODE
-            strcpy(aux,"../labirintos/");
-            strcat(aux,nome_arquivo);
-            FILE* teste = fopen(strcat(aux,".txt"),"r");
-
-            if(teste==NULL) printf("Nao foi possivel abrir o arquivo\n");
-
-            fgets(ordem,sizeof(ordem),teste);
-            sscanf(ordem, "%d %d", &m, &n);
-            n = n*2;
-
-            armazenar_labirinto(teste, m, n);
-            salvar_labirinto(m, n, ordem);
-            acc_menu++;
-            main();
-            //break;
-        }
-        case 4: exit(0); break;
-    }
 
 
         /*//Mostra a posicao inicial e final (Fins de checagem)
@@ -160,16 +133,17 @@ int main(){
                 if(jogador.i == final.i && jogador.j == final.j) break;
                 
         }*/
+    fclose(lab);
     return 0;
 }
 
 // Função para ler o arquivo e armazenar labirinto na matriz
-void armazenar_labirinto(FILE *teste, int m, int n){
+void armazenar_labirinto(FILE *lab, int m, int n){
     int i, j;
     //For para ler e armazenar na matriz os caracteres do arquivo
     for(i=0;i<m;i++){
         for(j=0;j<n;j++){
-            labirinto[i][j] = fgetc(teste);
+            labirinto[i][j] = fgetc(lab);
         }
     }
 }
@@ -178,7 +152,7 @@ void armazenar_labirinto(FILE *teste, int m, int n){
 int menu(int acc_menu){
     int resposta;
     if(acc_menu == 0){
-        printf("%s%s%s",Azul,"BEM-VINDO AO SIMULADOR DE LABIRINTOS 2088\n\nVOCE TEM 4 OPCOES:\n\n1-TENTAR RESOLVER O LABIRINTO COM UMA TENTATIVA;",NONE);
+        printf("%s%s%s",Azul,"\nBEM-VINDO AO SIMULADOR DE LABIRINTOS 2088\n\nVOCE TEM 4 OPCOES:\n\n1-TENTAR RESOLVER O LABIRINTO COM UMA TENTATIVA;",NONE);
     }
     else{
         printf("%s%s%s",Azul,"\nBEM-VINDO DE VOLTA!\n\nVOCE TEM 4 OPCOES:\n\n1-TENTAR RESOLVER O LABIRINTO COM UMA TENTATIVA;",NONE);
