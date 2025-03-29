@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
+#include <unistd.h>
+#include <windows.h>
 
 // Cores, definidas previamente como codigo ANSI para facilitar a estilizacao
 #define NONE        "\033[0m"
@@ -15,9 +16,13 @@
 
 // Definindo o labirinto como uma variavel global, o acc_menu esta sendo usado apenas para mudar a mensagem do menu.
 char labirinto[20][20];
+char lab_backup[20][20]; // Esse backup eh utilizado na funcao de tentar resolver o labirinto aleatoriamente ate conseguir.
 int acc_menu=0;
-// Variavel para acumular quantidade de lutas
+int opt;
+int m,n;
+// Variavel para acumular a quantidade de lutas
 int acc_luta=0;
+int flag=0;
 
 //Cria um struct para armazenar posicoes
 typedef struct{
@@ -25,67 +30,73 @@ typedef struct{
     int j;
 }posicao;
 
-posicao jogador, final;
+posicao jogador, final, inicial;
 // Assinatura das funcoes, estao definidas no final do codigo, depois da main.
 
 int menu(int acc_menu);
-void armazenar_labirinto(FILE *lab, int m, int n);
-void printar_labirinto(int m, int n);
-void printar_estilizado(int m, int n);
-void salvar_labirinto(int m, int n, char* ordem);
-void checagem(int m,int n);
-void andar();
+void armazenar_labirinto(FILE *lab);
+void printar_labirinto();
+void printar_estilizado();
+void salvar_labirinto(char* ordem);
+void checagem();
+void andar(int resp);
 int luta(int acc_luta);
 
 // Funcao Main
 int main(int argc, char** argv){
-    int resp,m,n;
+    int resp;
     char ordem[6];
 
     // Seta a funcao rand conforme o tempo
     srand(time(0));
-
+    //Abrindo o arquivo passado pelo terminal, vale ressaltar que eh preciso digitar o nome da pasta e o ".txt".
     FILE* lab = fopen(argv[1],"r");
 
     if(lab == NULL) {
         printf("Nao foi possivel abrir o arquivo :(\n");
     }
     else{
-        //Lendo a ordem da matriz do labirinto, informada na primeira linha.
-        // fgets(ordem,sizeof(ordem),lab);
-        // sscanf(ordem, "%d %d", &m, &n);
-        // armazenar_labirinto(lab, m, n);
+        //Iniciando propriamente o simulador, a funcao de checagem e de armazenar o labirinto sao chamadas apenas na primeira vez que o codigo roda.
+        fgets(ordem,sizeof(ordem),lab);
+        sscanf(ordem, "%d %d", &m, &n);
         if(acc_menu==0){
-            fgets(ordem,sizeof(ordem),lab);
-            sscanf(ordem, "%d %d", &m, &n);
-            armazenar_labirinto(lab, m, n);
-            checagem(m,n);
-            printar_labirinto(m,n);
-            printf("\n\n");
-            printar_estilizado(m,n);
+            armazenar_labirinto(lab);
+            checagem();
+            printf("Voce deseja exibir o labirinto normalmente ou de forma estilizada?\n1 - Normal;\n2 - Estilizada.\n");
+            scanf("%d",&opt);
         }
-        else{
-            fgets(ordem,sizeof(ordem),lab);
-            sscanf(ordem, "%d %d", &m, &n);
-            printar_labirinto(m,n);
-            printf("\n\n");
-            printar_estilizado(m,n);
+
+        if(opt == 1){
+            printar_labirinto();
         }
+        else printar_estilizado();
+
+        if(acc_menu != 0){
+            switch (flag){
+            case 1: printf("O grande heroi concluiu o seu caminho :D\n"); break;
+            case 2: printf("O grande heroi se perdeu :(\n"); break;
+            case 3: printf("O grande heroi morreu em combate :(\n"); break;
+            }
+        }
+
         resp = menu(acc_menu);
         switch (resp) {
             case 1: {
-                andar();
-                //printar_labirinto(m,n); 
+                flag = 0;
+                andar(1);
                 acc_menu++;
                 main(argc,argv);
             }
             case 2: {
-                printf("Em breve"); 
+                flag = 0;
+                do{
+                    andar(2);
+                }while(flag!=1);
                 acc_menu++;
                 main(argc,argv);
             }
             case 3: {
-                salvar_labirinto(m, n, ordem);
+                salvar_labirinto(ordem);
                 acc_menu++;
                 main(argc,argv);
             }
@@ -97,12 +108,13 @@ int main(int argc, char** argv){
 }
 
 // Funcao para ler o arquivo e armazenar labirinto na matriz
-void armazenar_labirinto(FILE *lab, int m, int n){
+void armazenar_labirinto(FILE *lab){
     int i, j;
     // For para ler e armazenar na matriz os caracteres do arquivo
     for(i=0;i<m;i++){
         for(j=0;j<n;j++){
             fscanf(lab, " %c", &labirinto[i][j]);
+            lab_backup[i][j] = labirinto[i][j];
         }
     }
 }
@@ -126,7 +138,7 @@ int menu(int acc_menu){
 
 // Funcoes para printar o labirinto
 
-void printar_labirinto(int m, int n){
+void printar_labirinto(){
     int i,j;
     // Printando o labirinto sem estilizacao.
     for(i=0;i<m;i++){
@@ -142,9 +154,9 @@ void printar_labirinto(int m, int n){
     }
 }
 
-void printar_estilizado(int m, int n){
+void printar_estilizado(){
     int i, j;
-    // Printando o labirinto, utilizando os codigos ANSI para deixar bonitinho
+    // Printando o labirinto, utilizando os codigos ANSI para deixar bonitinho :D
     for(i=0;i<m;i++){
         for(j=0;j<n;j++){ 
             if(labirinto[i][j] =='#') printf("%s%c %s",Laranja,' ',NONE);
@@ -168,7 +180,7 @@ void printar_estilizado(int m, int n){
                 printf("%s%c %s",Vermelho,'+',NONE);
             }
             else if(labirinto[i][j] =='!'){
-                printf("%s%c %s",Vermelho,'!',NONE);
+                printf("%s%c %s",Verde,'!',NONE);
             }
             else{
                 printf("%c ", labirinto[i][j]);
@@ -182,7 +194,7 @@ void printar_estilizado(int m, int n){
 
 // Funcao para salvar o labirinto final.
 
-void salvar_labirinto(int m, int n, char* ordem){
+void salvar_labirinto(char* ordem){
     int i, j;
     FILE* lab_final = fopen("lab_final.txt", "w");
     if(lab_final==NULL) printf("Nao foi possivel abrir o arquivo\n");
@@ -207,7 +219,7 @@ void salvar_labirinto(int m, int n, char* ordem){
 }
 
 // Funcao para armazenar as posicoes inicial e final
-void checagem(int m,int n){
+void checagem(){
     int i,j;
     for(i=0;i<m;i++){
         for(j=0;j<n;j++){
@@ -216,43 +228,60 @@ void checagem(int m,int n){
                 final.j = j;
             }
             else if(labirinto[i][j] =='@'){
-                jogador.i = i;
-                jogador.j = j;
+                inicial.i = i;
+                inicial.j = j;
             } 
         }
     }
 }
 
 // Funcao para fazer o grande heroi andar
-void andar(){
-    // Armazenando a posicao inicial do grande heroi para garantir que o quadrado inicial nao se transforme em '*'
-    posicao inicial;
-    inicial.i = jogador.i;
-    inicial.j = jogador.j;
-    //Mostra a posicao inicial e final (Fins de checagem)
-    printf("\njogador i:%d jogador j:%d\n",jogador.i,jogador.j);
-    printf("\njogador final i:%d jogador final j:%d\n",final.i,final.j);
-    //Função que faz o boneco andar
+void andar(int resp){
+    //Redefinindo algumas variaveis importantes, garantindo que a primeira luta sempre tem 50% de chance de vitoria, e tambem que ele comece do lugar correto.
+    acc_luta=0;
+    jogador.i = inicial.i;
+    jogador.j = inicial.j;
     int num;
+    //Redefinindo o labirinto para o estado inicial, muito importante para a funcao de resolver aleatoriamente e tambem para as outras chamadas do menu.
+    //Basicamente a estrategia utilizada na segunda opcao eh rodar aleatoriamente ate que, eventualmente, o caminho esteja correto.
+    for(int i = 0;i < 20;i++){
+        for(int j = 0;j < 20;j++){
+            labirinto[i][j] = lab_backup[i][j];
+        }
+    }
+
     while(1){
+        int antes_i=jogador.i,antes_j=jogador.j;
+        //Primeira condicao de quebra do loop, quando o grande heroi atinge seu objetivo!
+        //system("cls"); // --> windows
+        //system("clear"); //--> linux
         if((jogador.i == final.i) && (jogador.j == final.j)) {
             labirinto[jogador.i][jogador.j] = 'V';
+            //printf("O grande heroi concluiu o seu caminho :D\n");
+            flag = 1;
+            //system("cls"); // --> windows
+            system("clear"); //--> linux 0_0
             break;
         }
-        // Se o que estiver ao redor do grande heroi nao for chao, inimigo ou chegada, ele se perdeu
+        //Se o que estiver ao redor do grande heroi nao for chao, inimigo ou chegada, ele se perdeu :(
         if((labirinto[jogador.i-1][jogador.j] != '.' && labirinto[jogador.i-1][jogador.j] != '%' && labirinto[jogador.i-1][jogador.j] != '$') 
         && (labirinto[jogador.i+1][jogador.j] != '.' && labirinto[jogador.i+1][jogador.j] != '%' && labirinto[jogador.i+1][jogador.j] != '$') 
         && (labirinto[jogador.i][jogador.j-1] != '.' && labirinto[jogador.i][jogador.j-1] != '%' && labirinto[jogador.i][jogador.j-1] != '$') 
-        && (labirinto[jogador.i][jogador.j+1] != '.' && labirinto[jogador.i][jogador.j+1] != '%' && labirinto[jogador.i][jogador.j+1] != '$'))
-        {
-            printf("O grande heroi se perdeu :(\n");
+        && (labirinto[jogador.i][jogador.j+1] != '.' && labirinto[jogador.i][jogador.j+1] != '%' && labirinto[jogador.i][jogador.j+1] != '$')){
+            //printf("O grande heroi se perdeu :(\n");
             labirinto[jogador.i][jogador.j] = '?';
-            break;
+            flag = 2;
+            if(resp==1) {
+                //system("cls"); // --> windows
+                system("clear"); //--> linux 0_0
+                break;
+            }
         }
-
+        //Gerando um numero aleatorio entre [0,3], cada um indica uma direcao que o grande heroi pode se mover.
         num = 0 + rand()%4;
-        printf("num: %d\n",num);
+        //printf("num: %d\n",num);
         switch(num){
+            // -- e ++ antes de jogador.i/jogador.j visto que sera necessario utilizar a posicao apos o movimento para o combate.
             case 1: {
                 //Para cima
                 if(labirinto[jogador.i-1][jogador.j] == '.' || labirinto[jogador.i-1][jogador.j] == '$' || labirinto[jogador.i-1][jogador.j] == '%'){
@@ -282,23 +311,51 @@ void andar(){
                 break;
             }
         }
-
+        //Verificando se o grande heroi vai entrar em combate.
         if(labirinto[jogador.i][jogador.j] == '%'){
             int resultado_luta = luta(acc_luta);
-            printf("Luta numero:%d\n",acc_luta);
+            //printf("Luta numero:%d\n",acc_luta);
             if(resultado_luta){
-                printf("O grande heroi ganhou a luta :)\n");
+                //printf("O grande heroi ganhou a luta :)\n");
                 acc_luta++;
                 labirinto[jogador.i][jogador.j] = '!';
             }
             else{
-                printf("O grande heroi perdeu a luta :(\n");
+                //printf("O grande heroi perdeu a luta :(\n");
                 labirinto[jogador.i][jogador.j] = '+';
-                break;
+                flag = 3;
+                if(resp==1) {
+                    //system("cls"); // --> windows
+                    system("clear"); //--> linux 0_0
+                    break;
+                }
             }
         }
         //Troca a posicao que o jogador passa por *
         else if(labirinto[jogador.i][jogador.j] == '.') labirinto[jogador.i][jogador.j] = '*';
+        switch(resp){
+            case 1: {
+                if(antes_i != jogador.i || antes_j != jogador.j) {
+                    //Sleep(150); // --> windows
+                    usleep(150); //--> linux 0_0
+                    //system("cls"); // --> windows
+                    system("clear"); // --> linux 0_0
+                    printar_estilizado();
+                }
+                break;
+            } 
+            case 2: {
+                if(labirinto[jogador.i][jogador.j] == '+' ||labirinto[jogador.i][jogador.j] == '?'){
+                    //Sleep(750); // --> windows
+                    usleep(750); // --> linux 0_0
+                    //system("cls"); // --> windows
+                    system("clear"); // --> linux 0_0
+                    printar_estilizado();
+                    andar(2);
+                }
+                break;
+            }
+        }
     }
 }
 
@@ -308,7 +365,7 @@ int luta(int acc_luta){
     switch (acc_luta){
         case 0: {
             num = 0 + rand()%2;
-            printf("num da luta: %d\n",num);
+            //printf("num da luta: %d\n",num);
             if(num==1){ // 0 | 1 --> 1/2 == 50%
                 return 1;
             }
@@ -318,7 +375,7 @@ int luta(int acc_luta){
         }
         case 1: {
             num = 0 + rand()%10;
-            printf("num da luta: %d\n",num); 
+            //printf("num da luta: %d\n",num); 
             if(num<=5){ // 0 1 2 3 4 5 | 6 7 8 9 --> 6/10 == 60%
                 return 1;
             }
@@ -327,7 +384,7 @@ int luta(int acc_luta){
         }
         case 2: {
             num = 0 + rand()%10;
-            printf("num da luta: %d\n",num);
+            //printf("num da luta: %d\n",num);
             if(num<=6){ // 0 1 2 3 4 5 6 | 7 8 9 --> 7/10 == 70%
                 return 1;
             }
@@ -336,7 +393,7 @@ int luta(int acc_luta){
         }
         case 3: {
             num = 0 + rand()%10;
-            printf("num da luta: %d\n",num);
+            //printf("num da luta: %d\n",num);
             if(num<=7){ // 0 1 2 3 4 5 6 7 | 8 9 --> 8/10 == 80%
                 return 1;
             }
@@ -345,16 +402,17 @@ int luta(int acc_luta){
         }
         case 4: { // 0 1 2 3 4 5 6 7 8 | 9 --> 9/10 == 90%
             num = 0 + rand()%10;
-            printf("num da luta: %d\n",num);
+            //printf("num da luta: %d\n",num);
             if(num<=8){
                 return 1;
             }
             else return 0;
             break;
         }
-        case 5: { // 100% de chance de ganhar 
+        case 5: { // 100% --> imbroxavel 0_0
             return 1;
             break;
         }
+        default : return 1;
     }
 }
