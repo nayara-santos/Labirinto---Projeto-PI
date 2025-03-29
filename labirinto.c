@@ -66,9 +66,7 @@ int main(int argc, char** argv){
             scanf("%d",&opt);
         }
 
-        if(opt == 1){
-            printar_labirinto();
-        }
+        if(opt == 1) printar_labirinto();
         else printar_estilizado();
 
         if(acc_menu != 0){
@@ -143,7 +141,7 @@ void printar_labirinto(){
     // Printando o labirinto sem estilizacao.
     for(i=0;i<m;i++){
         for(j=0;j<n;j++){
-            if(j==n-1 && i!=m-1){
+            if(j==n-1){
                 printf("%c ", labirinto[i][j]);
                 printf("\n");
             }
@@ -339,7 +337,8 @@ void andar(int resp){
                     //Sleep(150); // --> windows
                     //system("cls"); // --> windows
                     system("clear"); // --> linux 0_0
-                    printar_estilizado();
+                    if(opt == 1) printar_labirinto();
+                    else printar_estilizado();
                 }
                 break;
             } 
@@ -349,7 +348,10 @@ void andar(int resp){
                     sleep(1); // --> linux 0_0
                     //system("cls"); // --> windows
                     system("clear"); // --> linux 0_0
-                    printar_estilizado();
+                    if(opt == 1) printar_labirinto();
+                    else printar_estilizado();
+                    if(labirinto[jogador.i][jogador.j] == '+') printf("O grande heroi morreu em combate :(\n");
+                    else printf("O grande heroi se perdeu :(\n");
                     andar(2);
                 }
                 break;
