@@ -161,11 +161,11 @@ void printar_estilizado(){
         for(j=0;j<n;j++){ 
             if(labirinto[i][j] =='#') printf("%s%c %s",Laranja,' ',NONE);
             else if(labirinto[i][j] =='$'){
-                printf("%s%c %s",Verde,254,NONE);
+                printf("%s■ %s",Verde,NONE);
             } 
-            else if(labirinto[i][j] =='%') printf("%s%c %s",Vermelho,254,NONE);
+            else if(labirinto[i][j] =='%') printf("%s■ %s",Vermelho,NONE);
             else if(labirinto[i][j] =='@'){
-                printf("%s%c %s",Amarelo,254,NONE);
+                printf("%s■ %s",Amarelo,NONE);
             }
             else if(labirinto[i][j] =='V'){
                 printf("%s%c %s",Verde,'V',NONE);
@@ -337,7 +337,6 @@ void andar(int resp){
             case 1: {
                 if(antes_i != jogador.i || antes_j != jogador.j) {
                     //Sleep(150); // --> windows
-                    usleep(150); //--> linux 0_0
                     //system("cls"); // --> windows
                     system("clear"); // --> linux 0_0
                     printar_estilizado();
