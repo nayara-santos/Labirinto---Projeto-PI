@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-#include <windows.h>
+//include <windows.h>
 
 // Cores, definidas previamente como codigo ANSI para facilitar a estilizacao
 #define NONE        "\033[0m"
@@ -347,7 +347,7 @@ void andar(int resp){
             case 2: {
                 if(labirinto[jogador.i][jogador.j] == '+' ||labirinto[jogador.i][jogador.j] == '?'){
                     //Sleep(750); // --> windows
-                    usleep(750); // --> linux 0_0
+                    sleep(1); // --> linux 0_0
                     //system("cls"); // --> windows
                     system("clear"); // --> linux 0_0
                     printar_estilizado();
