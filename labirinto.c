@@ -16,6 +16,8 @@
 // Definindo o labirinto como uma variavel global, o acc_menu esta sendo usado apenas para mudar a mensagem do menu.
 char labirinto[20][20];
 int acc_menu=0;
+// Variavel para acumular quantidade de lutas
+int acc_luta=0;
 
 //Cria um struct para armazenar posicoes
 typedef struct{
@@ -33,6 +35,7 @@ void printar_estilizado(int m, int n);
 void salvar_labirinto(int m, int n, char* ordem);
 void checagem(int m,int n);
 void andar();
+int luta(int acc_luta);
 
 // Funcao Main
 int main(int argc, char** argv){
@@ -147,16 +150,25 @@ void printar_estilizado(int m, int n){
             if(labirinto[i][j] =='#') printf("%s%c %s",Laranja,' ',NONE);
             else if(labirinto[i][j] =='$'){
                 printf("%s%c %s",Verde,254,NONE);
-                // final.i = i;
-                // final.j = j;
             } 
             else if(labirinto[i][j] =='%') printf("%s%c %s",Vermelho,254,NONE);
             else if(labirinto[i][j] =='@'){
                 printf("%s%c %s",Amarelo,254,NONE);
-                // if(acc_menu==0){
-                //     jogador.i = i;
-                //     jogador.j = j;
-                // }
+            }
+            else if(labirinto[i][j] =='V'){
+                printf("%s%c %s",Verde,'V',NONE);
+            }
+            else if(labirinto[i][j] =='?'){
+                printf("%s%c %s",Vermelho,'?',NONE);
+            }
+            else if(labirinto[i][j] =='*'){
+                printf("%s%c %s",Amarelo,'*',NONE);
+            }
+            else if(labirinto[i][j] =='+'){
+                printf("%s%c %s",Vermelho,'+',NONE);
+            }
+            else if(labirinto[i][j] =='!'){
+                printf("%s%c %s",Vermelho,'!',NONE);
             }
             else{
                 printf("%c ", labirinto[i][j]);
@@ -193,6 +205,8 @@ void salvar_labirinto(int m, int n, char* ordem){
     }
     fclose(lab_final);
 }
+
+// Funcao para armazenar as posicoes inicial e final
 void checagem(int m,int n){
     int i,j;
     for(i=0;i<m;i++){
@@ -208,45 +222,139 @@ void checagem(int m,int n){
         }
     }
 }
+
+// Funcao para fazer o grande heroi andar
 void andar(){
+    // Armazenando a posicao inicial do grande heroi para garantir que o quadrado inicial nao se transforme em '*'
+    posicao inicial;
+    inicial.i = jogador.i;
+    inicial.j = jogador.j;
     //Mostra a posicao inicial e final (Fins de checagem)
     printf("\njogador i:%d jogador j:%d\n",jogador.i,jogador.j);
     printf("\njogador final i:%d jogador final j:%d\n",final.i,final.j);
     //Função que faz o boneco andar
-        int num;
-        
-            num = 0 + rand()%4;
-            printf("num: %d\n",num);
-            switch(num){
-                case 1: {
-                    //Para cima
-                    if(labirinto[jogador.i-1][jogador.j] == '.'){
-                        jogador.i--;
-                    }
-                    break;
+    int num;
+    while(1){
+        if((jogador.i == final.i) && (jogador.j == final.j)) {
+            labirinto[jogador.i][jogador.j] = 'V';
+            break;
+        }
+        // Se o que estiver ao redor do grande heroi nao for chao, inimigo ou chegada, ele se perdeu
+        if((labirinto[jogador.i-1][jogador.j] != '.' && labirinto[jogador.i-1][jogador.j] != '%' && labirinto[jogador.i-1][jogador.j] != '$') 
+        && (labirinto[jogador.i+1][jogador.j] != '.' && labirinto[jogador.i+1][jogador.j] != '%' && labirinto[jogador.i+1][jogador.j] != '$') 
+        && (labirinto[jogador.i][jogador.j-1] != '.' && labirinto[jogador.i][jogador.j-1] != '%' && labirinto[jogador.i][jogador.j-1] != '$') 
+        && (labirinto[jogador.i][jogador.j+1] != '.' && labirinto[jogador.i][jogador.j+1] != '%' && labirinto[jogador.i][jogador.j+1] != '$'))
+        {
+            printf("O grande heroi se perdeu :(\n");
+            labirinto[jogador.i][jogador.j] = '?';
+            break;
+        }
+
+        num = 0 + rand()%4;
+        printf("num: %d\n",num);
+        switch(num){
+            case 1: {
+                //Para cima
+                if(labirinto[jogador.i-1][jogador.j] == '.' || labirinto[jogador.i-1][jogador.j] == '$' || labirinto[jogador.i-1][jogador.j] == '%'){
+                    --jogador.i;
                 }
-                case 2: {
-                    //Para baixo
-                    if(labirinto[jogador.i+1][jogador.j] == '.'){
-                        jogador.i++;
-                    }
-                    break;
-                }
-                case 3: {
-                    //Para esquerda
-                    if(labirinto[jogador.i][jogador.j-1] == '.'){
-                        jogador.j--;
-                    }
-                    break;
-                }
-                case 0: {
-                    //Para direita
-                    if(labirinto[jogador.i][jogador.j+1] == '.'){
-                        jogador.j++;
-                    }
-                    break;
-                }
+                break;
             }
+            case 2: {
+                //Para baixo
+                if(labirinto[jogador.i+1][jogador.j] == '.' || labirinto[jogador.i+1][jogador.j] == '$' || labirinto[jogador.i+1][jogador.j] == '%'){
+                    ++jogador.i;
+                }
+                break;
+            }
+            case 3: {
+                //Para esquerda
+                if(labirinto[jogador.i][jogador.j-1] == '.' || labirinto[jogador.i][jogador.j-1] == '$' || labirinto[jogador.i][jogador.j-1] == '%'){
+                    --jogador.j;
+                }
+                break;
+            }
+            case 0: {
+                //Para direita
+                if(labirinto[jogador.i][jogador.j+1] == '.' || labirinto[jogador.i][jogador.j+1] == '$' || labirinto[jogador.i][jogador.j+1] == '%'){
+                    ++jogador.j;
+                }
+                break;
+            }
+        }
+
+        if(labirinto[jogador.i][jogador.j] == '%'){
+            int resultado_luta = luta(acc_luta);
+            printf("Luta numero:%d\n",acc_luta);
+            if(resultado_luta){
+                printf("O grande heroi ganhou a luta :)\n");
+                acc_luta++;
+                labirinto[jogador.i][jogador.j] = '!';
+            }
+            else{
+                printf("O grande heroi perdeu a luta :(\n");
+                labirinto[jogador.i][jogador.j] = '+';
+                break;
+            }
+        }
         //Troca a posicao que o jogador passa por *
-            labirinto[jogador.i][jogador.j] = '*';
+        else if(labirinto[jogador.i][jogador.j] == '.') labirinto[jogador.i][jogador.j] = '*';
+    }
+}
+
+// Funcao de luta, comeca com 50% de chance e vai crescendo 10% conforme o grande heroi ganha batalhas.
+int luta(int acc_luta){
+    int num;   
+    switch (acc_luta){
+        case 0: {
+            num = 0 + rand()%2;
+            printf("num da luta: %d\n",num);
+            if(num==1){ // 0 | 1 --> 1/2 == 50%
+                return 1;
+            }
+            else return 0;
+            
+            break;
+        }
+        case 1: {
+            num = 0 + rand()%10;
+            printf("num da luta: %d\n",num); 
+            if(num<=5){ // 0 1 2 3 4 5 | 6 7 8 9 --> 6/10 == 60%
+                return 1;
+            }
+            else return 0;
+            break;
+        }
+        case 2: {
+            num = 0 + rand()%10;
+            printf("num da luta: %d\n",num);
+            if(num<=6){ // 0 1 2 3 4 5 6 | 7 8 9 --> 7/10 == 70%
+                return 1;
+            }
+            else return 0;
+            break;
+        }
+        case 3: {
+            num = 0 + rand()%10;
+            printf("num da luta: %d\n",num);
+            if(num<=7){ // 0 1 2 3 4 5 6 7 | 8 9 --> 8/10 == 80%
+                return 1;
+            }
+            else return 0;
+            break;
+        }
+        case 4: { // 0 1 2 3 4 5 6 7 8 | 9 --> 9/10 == 90%
+            num = 0 + rand()%10;
+            printf("num da luta: %d\n",num);
+            if(num<=8){
+                return 1;
+            }
+            else return 0;
+            break;
+        }
+        case 5: { // 100% de chance de ganhar 
+            return 1;
+            break;
+        }
+    }
 }
