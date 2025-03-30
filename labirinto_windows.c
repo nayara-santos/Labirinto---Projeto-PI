@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h>
+#include <windows.h>
 
 // Cores, definidas previamente como codigo ANSI para facilitar a estilizacao
 #define NONE        "\033[0m"
@@ -126,9 +126,9 @@ int menu(int acc_menu){
         printf("%s%s%s",Azul,"\nBEM-VINDO DE VOLTA!\n\nVOCE TEM 4 OPCOES:\n\n1-TENTAR RESOLVER O LABIRINTO COM UMA TENTATIVA;",NONE);
     }
     printf("%s%s%s",Azul,"\n2-RESOLVER O LABIRINTO (PODE DEMORAR);\n3-SALVAR O SEU ULTIMO LABIRINTO;\n4-SAIR DO SIMULADOR DE LABIRINTOS 2088.\n\n",NONE);
-    do{
-        printf("%s%s%s",Azul,"DIGITE A SUA ESCOLHA:\n",NONE);
-        scanf("%d",&resposta);
+        do{
+            printf("%s%s%s",Azul,"DIGITE A SUA ESCOLHA:\n",NONE);
+            scanf("%d",&resposta);
     }while(resposta!=1 && resposta!=2 && resposta!=3 && resposta!=4);
     return resposta;
 }
@@ -144,9 +144,7 @@ void printar_labirinto(){
                 printf("%c ", labirinto[i][j]);
                 printf("\n");
             }
-            else{
-                printf ("%c ", labirinto[i][j]);
-            }
+            else printf ("%c ", labirinto[i][j]);
         }
     }
 }
@@ -157,9 +155,9 @@ void printar_estilizado(){
     for(i=0;i<m;i++){
         for(j=0;j<n;j++){ 
             if(labirinto[i][j] =='#') printf("%s%c %s",Laranja,' ',NONE);
-            else if(labirinto[i][j] =='$') printf("%s■ %s",Verde,NONE); 
-            else if(labirinto[i][j] =='%') printf("%s■ %s",Vermelho,NONE);
-            else if(labirinto[i][j] =='@') printf("%s■ %s",Amarelo,NONE);
+            else if(labirinto[i][j] =='$') printf("%s%c %s",Verde,254,NONE);
+            else if(labirinto[i][j] =='%') printf("%s%c %s",Vermelho,254,NONE);
+            else if(labirinto[i][j] =='@') printf("%s%c %s",Amarelo,254,NONE);
             else if(labirinto[i][j] =='V') printf("%s%c %s",Verde,'V',NONE);
             else if(labirinto[i][j] =='?') printf("%s%c %s",Vermelho,'?',NONE);
             else if(labirinto[i][j] =='*') printf("%s%c %s",Amarelo,'*',NONE);
@@ -234,7 +232,7 @@ void andar(int resp){
             labirinto[jogador.i][jogador.j] = 'V';
             //printf("O grande heroi concluiu o seu caminho :D\n");
             flag = 1;
-            system("clear");
+            system("cls");
             break;
         }
         //Se o que estiver ao redor do grande heroi nao for chao, inimigo ou chegada, ele se perdeu :(
@@ -246,7 +244,7 @@ void andar(int resp){
             labirinto[jogador.i][jogador.j] = '?';
             flag = 2;
             if(resp==1) {
-                system("clear");
+                system("cls");
                 break;
             }
         }
@@ -298,7 +296,7 @@ void andar(int resp){
                 labirinto[jogador.i][jogador.j] = '+';
                 flag = 3;
                 if(resp==1) {
-                    system("clear");
+                    system("cls");
                     break;
                 }
             }
@@ -308,7 +306,8 @@ void andar(int resp){
         switch(resp){
             case 1: {
                 if(antes_i != jogador.i || antes_j != jogador.j) {
-                    system("clear");
+                    Sleep(150);
+                    system("cls");
                     if(opt == 1) printar_labirinto();
                     else printar_estilizado();
                 }
@@ -316,8 +315,8 @@ void andar(int resp){
             } 
             case 2: {
                 if(labirinto[jogador.i][jogador.j] == '+' ||labirinto[jogador.i][jogador.j] == '?'){
-                    sleep(1);
-                    system("clear");
+                    Sleep(750);
+                    system("cls");
                     if(opt == 1) printar_labirinto();
                     else printar_estilizado();
                     if(labirinto[jogador.i][jogador.j] == '+') printf("O grande heroi morreu em combate :(\n");
