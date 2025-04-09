@@ -308,6 +308,10 @@ void andar(int resp){
         switch(resp){
             case 1: {
                 if(antes_i != jogador.i || antes_j != jogador.j) {
+					struct timespec tim, tim2;
+					tim.tv_sec = 0;
+					tim.tv_nsec = 150000000;
+					nanosleep(&tim,&tim2);
                     system("clear");
                     if(opt == 1) printar_labirinto();
                     else printar_estilizado();
