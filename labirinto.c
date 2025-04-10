@@ -120,14 +120,14 @@ void armazenar_labirinto(FILE *lab){
 int menu(int acc_menu){
     int resposta;
     if(acc_menu == 0){
-        printf("%s%s%s",Azul,"\nBEM-VINDO AO SIMULADOR DE LABIRINTOS 2088\n\nVOCE TEM 4 OPCOES:\n\n1-TENTAR RESOLVER O LABIRINTO COM UMA TENTATIVA;",NONE);
+        printf("%s%s%s",Ciano,"\nBEM-VINDO AO SIMULADOR DE LABIRINTOS 2088\n\nVOCE TEM 4 OPCOES:\n\n1-TENTAR RESOLVER O LABIRINTO COM UMA TENTATIVA;",NONE);
     }
     else{
-        printf("%s%s%s",Azul,"\nBEM-VINDO DE VOLTA!\n\nVOCE TEM 4 OPCOES:\n\n1-TENTAR RESOLVER O LABIRINTO COM UMA TENTATIVA;",NONE);
+        printf("%s%s%s",Ciano,"\nBEM-VINDO DE VOLTA!\n\nVOCE TEM 4 OPCOES:\n\n1-TENTAR RESOLVER O LABIRINTO COM UMA TENTATIVA;",NONE);
     }
-    printf("%s%s%s",Azul,"\n2-RESOLVER O LABIRINTO (PODE DEMORAR);\n3-SALVAR O SEU ULTIMO LABIRINTO;\n4-SAIR DO SIMULADOR DE LABIRINTOS 2088.\n\n",NONE);
+    printf("%s%s%s",Ciano,"\n2-RESOLVER O LABIRINTO (PODE DEMORAR);\n3-SALVAR O SEU ULTIMO LABIRINTO;\n4-SAIR DO SIMULADOR DE LABIRINTOS 2088.\n\n",NONE);
     do{
-        printf("%s%s%s",Azul,"DIGITE A SUA ESCOLHA:\n",NONE);
+        printf("%s%s%s",Ciano,"DIGITE A SUA ESCOLHA:\n",NONE);
         scanf("%d",&resposta);
     }while(resposta!=1 && resposta!=2 && resposta!=3 && resposta!=4);
     return resposta;
@@ -175,7 +175,12 @@ void printar_estilizado(){
 
 void salvar_labirinto(char* ordem){
     int i, j;
-    FILE* lab_final = fopen("lab_final.txt", "w");
+    char nome_do_arquivo[256];
+    printf("%s%s%s",Ciano,"Digite o nome do arquivo a ser salvo(sem o .txt):\n",NONE);
+    getchar();
+    fgets(nome_do_arquivo,sizeof(nome_do_arquivo),stdin);
+    nome_do_arquivo[strcspn(nome_do_arquivo,"\n")] = 0;
+    FILE* lab_final = fopen(strcat(nome_do_arquivo,".txt"), "w");
     if(lab_final==NULL) printf("Nao foi possivel abrir o arquivo\n");
     else{
         fputs(ordem, lab_final);
@@ -384,7 +389,7 @@ int luta(int acc_luta){
             else return 0;
             break;
         }
-        case 5: { // 100% --> imbroxavel 0_0
+        case 5: { // 100% --> imbativel 0_0
             return 1;
             break;
         }
