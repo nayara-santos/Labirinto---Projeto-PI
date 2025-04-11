@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <time.h>
 #include <windows.h>
@@ -335,59 +336,13 @@ void andar(int resp){
 }
 
 // Funcao de luta, comeca com 50% de chance e vai crescendo 10% conforme o grande heroi ganha batalhas.
+
 int luta(int acc_luta){
-    int num;   
-    switch (acc_luta){
-        case 0: {
-            num = 0 + rand()%2;
-            //printf("num da luta: %d\n",num);
-            if(num==1){ // 0 | 1 --> 1/2 == 50%
-                return 1;
-            }
-            else return 0;
-            
-            break;
-        }
-        case 1: {
-            num = 0 + rand()%10;
-            //printf("num da luta: %d\n",num); 
-            if(num<=5){ // 0 1 2 3 4 5 | 6 7 8 9 --> 6/10 == 60%
-                return 1;
-            }
-            else return 0;
-            break;
-        }
-        case 2: {
-            num = 0 + rand()%10;
-            //printf("num da luta: %d\n",num);
-            if(num<=6){ // 0 1 2 3 4 5 6 | 7 8 9 --> 7/10 == 70%
-                return 1;
-            }
-            else return 0;
-            break;
-        }
-        case 3: {
-            num = 0 + rand()%10;
-            //printf("num da luta: %d\n",num);
-            if(num<=7){ // 0 1 2 3 4 5 6 7 | 8 9 --> 8/10 == 80%
-                return 1;
-            }
-            else return 0;
-            break;
-        }
-        case 4: { // 0 1 2 3 4 5 6 7 8 | 9 --> 9/10 == 90%
-            num = 0 + rand()%10;
-            //printf("num da luta: %d\n",num);
-            if(num<=8){
-                return 1;
-            }
-            else return 0;
-            break;
-        }
-        case 5: { // 100% --> imbroxavel 0_0
-            return 1;
-            break;
-        }
-        default : return 1;
+    int num;
+    num = 0 + rand()%10;
+    if(acc_luta < 5){
+        if(num < 5+acc_luta) return 1;
+        else return 0;
     }
+    else return 1;
 }
